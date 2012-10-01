@@ -77,7 +77,7 @@ messages:
   stopped: Something prevents you from tunnelling here...
   cantafford: Can't afford to dig!
   credits: You have %d tunnelling credits.
-  gavebook: Gave a %s book to &e%s.
+  gavebook: "Gave a %s book to &e%s."
   notvalidauthor: The author of this book isn't allowed to create holes.
-  chargemade: Tunnelling charge taken: &e%s
+  chargemade: "Tunnelling charge taken: &e%s"
 
