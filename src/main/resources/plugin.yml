@@ -1,0 +1,38 @@
+name: PortableHole
+main: me.desht.portablehole.PortableHolePlugin
+author: desht
+version: ${project.version}
+
+commands:
+  ph:
+    description: PortableHole management
+    usage: |
+      /<command> info
+      /<command> reload
+      /<command> give [<player>]
+
+permissions:
+  portablehole.admin:
+    description: Gives full control over all PortableHole functionality
+    default: op
+    children:
+      portablehole.create: true
+      portablehole.cost.exempt: true
+      portablehole.commands.info: true
+      portablehole.commands.reload: true
+      portablehole.commands.give: true
+  portablehole.create:
+    description: Allows creation of tunnels with the portable hole
+    default: true
+  portablehole.commands.info:
+    description: Allows usage of the /ph info command
+    default: true
+  portablehole.commands.reload:
+    description: Allows usage of the /ph reload command
+    default: op
+  portablehole.commands.give:
+    description: Allows Portable Hole books to given
+    default: op
+  portablehole.cost.exempt:
+    description: Do not apply any tunnelling costs
+    default: op

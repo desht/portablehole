@@ -1,0 +1,83 @@
+
+#
+# List of block ids to whitelist/blacklist, overriding the plugin's internal list
+# Whitelisted blocks will always be tunnellable - be careful what you add to this list!
+# Blacklisted blocks will always cause tunnel creation to fail if they're encountered
+tunnellable:
+  whitelist: []
+  blacklist: [ 23, 54, 58, 61, 62, 95, 116, 117, 118 ]
+
+#
+# List of costs for creating a hole, and the length of tunnel each cost will allow
+# The first cost in the list that is affordable by the player will be applied/
+# Note that at most one cost from the list will be applied.
+costs:
+  # Consuming one redstone will give the player credit to tunnel 20 blocks
+  - cost: REDSTONE
+    blocks: 20
+  # Consuming one coal will give the player credit to tunnel 10 blocks
+  - cost: COAL
+    blocks: 10
+  # Spending one economy credit will allow one block to be tunnelled
+  - cost: E,1
+  # Applying 1 damage to a diamond pick (use negative block id to specify durability cost)
+  # will allow one block to be tunnelled
+  - cost: DIAMOND_PICKAXE,1,D
+  # Applying 1 health damage to the player allows one block to be tunnelled
+  - cost: H,1
+
+# 
+# Define which players and/or permission groups can own books that can be used to tunnel.
+# If players and groups are both blank, then anyone's books can be used.
+# Otherwise, if the book's author is in the player list, the book can be used.
+# Otherwise, if the book's author is in a group in the groups list, the book can be used.
+# Otherwise, the book cannot be used.
+# Vault and a valid permissions plugin must be present for group checking to be used.
+authorvalidation:
+  players: [ ]
+  groups: [ ]
+
+#
+# Sound effects that get played when holes are opened/closed
+# Set to blank to play no sound
+sounds:
+  holeopen: mob.endermen.portal
+  holeclose: mob.endermen.portal
+  
+# Visual effects
+# - holeparticles: show particle effect within the hole (diminishing as hole ages)
+effects:
+  holeparticles: true
+
+# Hole lifetime control - values are in ticks
+# Total hole lifetime = initial + (hole-length * per_length)
+lifetime:
+  initial: 15
+  per_length: 20
+
+# Logging level (can be FINEST, FINER, FINE, INFO, WARNING, SEVERE - case insensitive)
+# Leave at INFO normally 
+log_level: INFO
+
+# Books must have this title to be considered for hole creation
+booktitle: Portable Hole
+
+# Default book text for books create with /ph give
+text:
+  - Left-click to use!
+
+# Message the player about any costs taken from them
+verbosecharges: true
+
+#
+# Message text
+messages:
+  cantcreate: Can't create a hole here.
+  toodeep: Can't create a hole that deep.
+  stopped: Something prevents you from tunnelling here...
+  cantafford: Can't afford to dig!
+  credits: You have %d tunnelling credits.
+  gavebook: Gave a %s book to &e%s.
+  notvalidauthor: The author of this book isn't allowed to create holes.
+  chargemade: Tunnelling charge taken: &e%s
+
