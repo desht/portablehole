@@ -23,6 +23,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.util.Vector;
 
 public class Hole {
 
@@ -31,6 +32,9 @@ public class Hole {
 	private static final Set<Material> blackList = new HashSet<Material>();
 	private static final Set<Material> terminators = new HashSet<Material>();
 
+
+	private static final Effect DEFAULT_EFFECT = Effect.ENDER_SIGNAL;
+	
 	// how far can you tunnel?
 	private static final int MAX_DISTANCE = 31;
 
@@ -111,7 +115,7 @@ public class Hole {
 			}
 		}, lifeTime);
 
-		if (plugin.getConfig().getBoolean("effects.holeparticles")) {
+		if (!plugin.getConfig().getString("particleeffect").isEmpty()) {
 			particleTaskId = Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, new ParticleHandler(), 1L, 50L);
 		} else {
 			particleTaskId = -1;
@@ -337,6 +341,21 @@ public class Hole {
 	}
 
 	private class ParticleHandler implements Runnable {
+		
+		private Effect e;
+		
+		public ParticleHandler() {
+			String effectName = plugin.getConfig().getString("particleeffect");
+			e = Effect.valueOf(effectName.toUpperCase());
+			if (e == null) {
+				LogUtils.warning("unknown effect " + effectName + ": defaulting to " + DEFAULT_EFFECT);
+				e = DEFAULT_EFFECT;
+			} else if (e.getType() != Effect.Type.VISUAL) {
+				LogUtils.warning("effect " + effectName + "is not visual: defaulting to " + DEFAULT_EFFECT);
+				e = DEFAULT_EFFECT;
+			}
+		}
+		
 		@Override
 		public void run() {
 			// lifetime of tunnel in milliseconds
@@ -348,7 +367,8 @@ public class Hole {
 			World w = tunnelExtent.getWorld();
 			for (Block tunnelBlock : tunnelExtent) {
 				if (Math.random() < prob) {
-					w.playEffect(tunnelBlock.getLocation(), Effect.ENDER_SIGNAL, 0);
+					Vector vec = new Vector(Math.random() - 0.5, Math.random() - 0.5, Math.random() - 0.5);
+					w.playEffect(tunnelBlock.getLocation().add(vec), Effect.ENDER_SIGNAL, 0);
 				}
 			}
 		}
