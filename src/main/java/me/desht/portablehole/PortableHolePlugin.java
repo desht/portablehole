@@ -46,8 +46,8 @@ public class PortableHolePlugin extends JavaPlugin {
 	private final CommandManager cmds = new CommandManager(this);
 	private Economy economy;
 	private Permission permission;
-	private Set<String> validAuthors = new HashSet<String>();
-	private Set<String> validGroups = new HashSet<String>();
+	private final Set<String> validAuthors = new HashSet<String>();
+	private final Set<String> validGroups = new HashSet<String>();
 	
 	private static PortableHolePlugin instance = null;
 	
