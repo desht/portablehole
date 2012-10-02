@@ -64,7 +64,7 @@ public class PortableHolePlugin extends JavaPlugin {
 		registerCommands();
 		
 		this.getConfig().options().copyDefaults(true);
-		this.getConfig().options().header("See http://dev.bukkit.org/server-mods/portablehole/configuration");
+		this.getConfig().options().header("See http://dev.bukkit.org/server-mods/portablehole/pages/configuration");
 		this.saveConfig();
 		
 		holeManager = new HoleManager();
