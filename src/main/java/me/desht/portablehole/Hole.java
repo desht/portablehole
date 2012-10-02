@@ -189,7 +189,7 @@ public class Hole {
 			if (!isTunnellable(b1) || (isHorizontal && !isTunnellable(b1.getRelative(BlockFace.DOWN)))) {
 				throw new HoleException("Can't create a hole here.");
 			}
-			if (isTerminator(b1)) {
+			if (isTerminator(b1) && !b1.equals(b)) {
 				// we've reached the end of the tunnel
 				break;
 			}
