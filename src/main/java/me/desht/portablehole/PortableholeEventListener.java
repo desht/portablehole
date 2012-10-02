@@ -113,7 +113,7 @@ public class PortableholeEventListener implements Listener {
 	
 		if (i.getType() == Material.WRITTEN_BOOK) {
 			BookItem book = new BookItem(i);
-			return book.getTitle() != null && book.getTitle().equals(plugin.getConfig().getString("booktitle", "Portable Hole"));
+			return book.getTitle() != null && book.getTitle().equals(plugin.getConfig().getString("book_title", "Portable Hole"));
 			// TODO: check if player is the author, with permission bypass
 		} else {
 			return false;

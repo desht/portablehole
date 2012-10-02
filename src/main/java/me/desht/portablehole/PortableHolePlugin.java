@@ -175,8 +175,8 @@ public class PortableHolePlugin extends JavaPlugin {
 	public void processConfig() {
 		Hole.initMaterials(this);
 		
-		setValidAuthors(getConfig().getStringList("authorvalidation.players"));
-		setValidGroups(getConfig().getStringList("authorvalidation.groups"));
+		setValidAuthors(getConfig().getStringList("author_validation.players"));
+		setValidGroups(getConfig().getStringList("author_validation.groups"));
 		
 		String level = getConfig().getString("log_level");
 		try {

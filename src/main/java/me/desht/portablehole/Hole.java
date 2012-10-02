@@ -92,17 +92,15 @@ public class Hole {
 			LogUtils.fine("player credit: " + credit + ", length = " + tunnelLength + ", credits needed = " + creditNeeded);
 			if (creditNeeded > 0) {
 				if (!cm.buyCredit(player, creditNeeded)) {
-					throw new HoleException(plugin.getMessage("cantafford"));
+					throw new HoleException(plugin.getMessage("cant_afford"));
 				}
 			}
 			cm.takeCredit(player, tunnelLength);
 		}
 
 		// empty out the tunnel, setting it to AIR
-		World w = creationBlock.getWorld();
 		for (Block tunnelBlock : tunnelExtent) {
 			tunnelBlock.setTypeIdAndData(0, (byte) 0, false);
-			w.playEffect(tunnelBlock.getLocation(), Effect.ENDER_SIGNAL, 1);
 		}
 
 		lifeTime = plugin.getConfig().getLong("lifetime.initial") + tunnelLength * plugin.getConfig().getLong("lifetime.per_length");
@@ -115,7 +113,7 @@ public class Hole {
 			}
 		}, lifeTime);
 
-		if (!plugin.getConfig().getString("particleeffect").isEmpty()) {
+		if (!plugin.getConfig().getString("particle_effect").isEmpty()) {
 			particleTaskId = Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, new ParticleHandler(), 1L, 50L);
 		} else {
 			particleTaskId = -1;
@@ -124,7 +122,7 @@ public class Hole {
 		// add this hole to the list of current holes
 		holeId = plugin.getHoleManager().addHole(this);
 
-		MiscUtil.playNamedSound(creationBlock.getLocation(), plugin.getConfig().getString("sounds.holeopen"), 1.0f, 1.0f);
+		MiscUtil.playNamedSound(creationBlock.getLocation(), plugin.getConfig().getString("sounds.hole_open"), 1.0f, 1.0f);
 	}
 
 	public void close(boolean force) {
@@ -137,7 +135,7 @@ public class Hole {
 		if (particleTaskId != -1)
 			Bukkit.getScheduler().cancelTask(particleTaskId);
 
-		MiscUtil.playNamedSound(creationBlock.getLocation(), plugin.getConfig().getString("sounds.holeclose"), 1.0f, 1.0f);
+		MiscUtil.playNamedSound(creationBlock.getLocation(), plugin.getConfig().getString("sounds.hole_close"), 1.0f, 1.0f);
 	}
 
 	public Cuboid getExtent() {
@@ -198,7 +196,7 @@ public class Hole {
 				break;
 			}
 			if (++nTunnelled > MAX_DISTANCE) {
-				throw new HoleException(plugin.getMessage("toodeep"));
+				throw new HoleException(plugin.getMessage("too_deep"));
 			}
 
 			b1 = b1.getRelative(direction);
@@ -277,7 +275,7 @@ public class Hole {
 			}
 		}
 
-		throw new HoleException(plugin.getMessage("notvalidauthor"));
+		throw new HoleException(plugin.getMessage("not_valid_author"));
 	}
 
 	public static void initMaterials(PortableHolePlugin plugin) {
@@ -345,7 +343,7 @@ public class Hole {
 		private Effect e;
 		
 		public ParticleHandler() {
-			String effectName = plugin.getConfig().getString("particleeffect");
+			String effectName = plugin.getConfig().getString("particle_effect");
 			e = Effect.valueOf(effectName.toUpperCase());
 			if (e == null) {
 				LogUtils.warning("unknown effect " + effectName + ": defaulting to " + DEFAULT_EFFECT);
@@ -368,7 +366,7 @@ public class Hole {
 			for (Block tunnelBlock : tunnelExtent) {
 				if (Math.random() < prob) {
 					Vector vec = new Vector(Math.random() - 0.5, Math.random() - 0.5, Math.random() - 0.5);
-					w.playEffect(tunnelBlock.getLocation().add(vec), Effect.ENDER_SIGNAL, 0);
+					w.playEffect(tunnelBlock.getLocation().add(vec), e, 0);
 				}
 			}
 		}

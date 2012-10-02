@@ -38,19 +38,19 @@ public class GiveCommand extends AbstractCommand {
 			}
 		}
 		
-		String title = plugin.getConfig().getString("booktitle", "Portable Hole");
+		String title = plugin.getConfig().getString("book_title", "Portable Hole");
 		
 		BookItem bi = new BookItem(new ItemStack(387,1));
 		bi.setTitle(title);
 		bi.setAuthor(sender.getName());
-		String[] pages = plugin.getConfig().getStringList("text").toArray(new String[0]);
+		String[] pages = plugin.getConfig().getStringList("default_book_text").toArray(new String[0]);
 		bi.setPages(pages);
 		
 		ItemStack writtenbook = bi.getItemStack();
 		target.getInventory().addItem(writtenbook);
 		target.updateInventory();
 		
-		String msg = String.format(phPlugin.getMessage("gavebook"), title, target.getName());
+		String msg = String.format(phPlugin.getMessage("gave_book"), title, target.getName());
 		MiscUtil.statusMessage(sender, msg);
 		
 		return true;

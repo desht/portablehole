@@ -33,7 +33,7 @@ costs:
 # Otherwise, if the book's author is in a group in the groups list, the book can be used.
 # Otherwise, the book cannot be used.
 # Vault and a valid permissions plugin must be present for group checking to be used.
-authorvalidation:
+author_validation:
   players: [ ]
   groups: [ ]
 
@@ -41,13 +41,13 @@ authorvalidation:
 # Sound effects that get played when holes are opened/closed
 # Set to blank to play no sound
 sounds:
-  holeopen: mob.endermen.portal
-  holeclose: mob.endermen.portal
-  
-# Visual effects
-# - holeparticles: show particle effect within the hole (diminishing as hole ages)
-effects:
-  holeparticles: true
+  hole_open: mob.endermen.portal
+  hole_close: mob.endermen.portal
+
+# Show particle effect within the hole, diminishing as the hole ages
+# Use any *visual* effect from http://jd.bukkit.org/apidocs/org/bukkit/Effect.html)
+# Leave blank for no particle effect
+particle_effect: ender_signal
 
 # Hole lifetime control - values are in ticks
 # Total hole lifetime = initial + (hole-length * per_length)
@@ -60,24 +60,24 @@ lifetime:
 log_level: INFO
 
 # Books must have this title to be considered for hole creation
-booktitle: Portable Hole
+book_title: Portable Hole
 
 # Default book text for books create with /ph give
-text:
+default_book_text:
   - Left-click to use!
 
 # Message the player about any costs taken from them
-verbosecharges: true
+verbose_charges: true
 
 #
 # Message text
 messages:
-  cantcreate: Can't create a hole here.
-  toodeep: Can't create a hole that deep.
+  cant_create: Can't create a hole here.
+  too_deep: Can't create a hole that deep.
   stopped: Something prevents you from tunnelling here...
-  cantafford: Can't afford to dig!
+  cant_afford: Can't afford to dig!
   credits: You have %d tunnelling credits.
-  gavebook: "Gave a %s book to &e%s."
-  notvalidauthor: The author of this book isn't allowed to create holes.
-  chargemade: "Tunnelling charge taken: &e%s"
+  gave_book: "Gave a %s book to &e%s."
+  not_valid_author: The author of this book isn't allowed to create holes.
+  charge_made: "Tunnelling charge taken: &e%s"
 

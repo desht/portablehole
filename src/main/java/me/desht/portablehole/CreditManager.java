@@ -83,8 +83,8 @@ public class CreditManager {
 			if (actualCost.isAffordable(p)) {
 				LogUtils.fine("affordable!");
 				actualCost.chargePlayer(p);
-				if (plugin.getConfig().getBoolean("verbosecharges")) {
-					MiscUtil.statusMessage(p, String.format(plugin.getMessage("chargemade"), actualCost.getDescription()));
+				if (plugin.getConfig().getBoolean("verbose_charges")) {
+					MiscUtil.statusMessage(p, String.format(plugin.getMessage("charge_made"), actualCost.getDescription()));
 				}
 				giveCredit(p, units * credit);
 				return true;
