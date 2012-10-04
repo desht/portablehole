@@ -34,9 +34,9 @@ public class Hole {
 
 
 	private static final Effect DEFAULT_EFFECT = Effect.ENDER_SIGNAL;
-	
+
 	// how far can you tunnel?
-	private static final int MAX_DISTANCE = 31;
+	private static final int DEFAULT_MAX_DISTANCE = 31;
 
 	private final Cuboid tunnelExtent;
 	private final List<BlockState> blockBackup;
@@ -184,22 +184,25 @@ public class Hole {
 	 * @param direction	Direction the hole will ho
 	 */
 	private Cuboid getTunnelExtent(Player p, Block b, BlockFace direction) {
-		boolean isHorizontal = direction == BlockFace.EAST || direction == BlockFace.WEST || direction == BlockFace.NORTH || direction == BlockFace.SOUTH;
+		boolean isHorizontal = direction.getModY() == 0;
 		Block b1 = b;
 		int nTunnelled = 0;
+		int max_dist = isHorizontal ? plugin.getConfig().getInt("max_tunnel_length.horizontal", DEFAULT_MAX_DISTANCE) : plugin.getConfig().getInt("max_tunnel_length.vertical", DEFAULT_MAX_DISTANCE);
+		boolean voidTunnelling = plugin.getConfig().getBoolean("void_tunnelling", false);
+		
 		do {
 			if (!isTunnellable(b1) || (isHorizontal && !isTunnellable(b1.getRelative(BlockFace.DOWN)))) {
-				throw new HoleException("Can't create a hole here.");
+				throw new HoleException(plugin.getMessage("cant_create"));
 			}
-			if (b1.getType() == Material.BEDROCK && b1.equals(b) && !whiteList.contains(Material.BEDROCK)) {
-				// special case for bedrock - don't allow starting a tunnel by clicking bedrock
-				throw new HoleException("Can't create a hole here.");
+			if (b1.getY() <= 1 && !voidTunnelling) {
+				// stop the player from opening a tunnel into the void
+				throw new HoleException(plugin.getMessage("cant_create"));
 			}
 			if (isTerminator(b1) && !b1.equals(b)) {
 				// we've reached the end of the tunnel
 				break;
 			}
-			if (++nTunnelled > MAX_DISTANCE) {
+			if (++nTunnelled > max_dist) {
 				throw new HoleException(plugin.getMessage("too_deep"));
 			}
 
@@ -224,9 +227,9 @@ public class Hole {
 		Material mat = b.getType();
 
 		LogUtils.finer("tunnellable " + b + ": blocked=" + !defaultBlockers.contains(mat) +
-		              ", terminated=" + terminators.contains(mat) +
-		              ", whitelist=" + whiteList.contains(mat) +
-		              ", blacklist=" + blackList.contains(mat));
+		               ", terminated=" + terminators.contains(mat) +
+		               ", whitelist=" + whiteList.contains(mat) +
+		               ", blacklist=" + blackList.contains(mat));
 
 		if (blackList.contains(mat)) return false;
 		if (whiteList.contains(mat)) return true;
@@ -344,9 +347,9 @@ public class Hole {
 	}
 
 	private class ParticleHandler implements Runnable {
-		
+
 		private Effect e;
-		
+
 		public ParticleHandler() {
 			String effectName = plugin.getConfig().getString("particle_effect");
 			e = Effect.valueOf(effectName.toUpperCase());
@@ -358,7 +361,7 @@ public class Hole {
 				e = DEFAULT_EFFECT;
 			}
 		}
-		
+
 		@Override
 		public void run() {
 			// lifetime of tunnel in milliseconds

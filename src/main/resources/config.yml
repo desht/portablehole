@@ -70,6 +70,14 @@ default_book_text:
 # Message the player about any costs taken from them
 verbose_charges: true
 
+# Prevent players from opening tunnels into the void
+void_tunnelling: false
+
+# Maximum length a tunnel can be
+max_tunnel_length:
+  horizontal: 31
+  vertical: 31
+
 #
 # Message text
 messages:
