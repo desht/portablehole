@@ -289,6 +289,7 @@ public class Hole {
 		// (the matched block will not be included in the tunnel)
 		terminators.clear();
 		terminators.add(Material.AIR);
+		terminators.add(Material.BEDROCK);
 		terminators.add(Material.POWERED_RAIL);
 		terminators.add(Material.DETECTOR_RAIL);
 		terminators.add(Material.TORCH);
