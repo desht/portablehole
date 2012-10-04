@@ -191,6 +191,10 @@ public class Hole {
 			if (!isTunnellable(b1) || (isHorizontal && !isTunnellable(b1.getRelative(BlockFace.DOWN)))) {
 				throw new HoleException("Can't create a hole here.");
 			}
+			if (b1.getType() == Material.BEDROCK && b1.equals(b) && !whiteList.contains(Material.BEDROCK)) {
+				// special case for bedrock - don't allow starting a tunnel by clicking bedrock
+				throw new HoleException("Can't create a hole here.");
+			}
 			if (isTerminator(b1) && !b1.equals(b)) {
 				// we've reached the end of the tunnel
 				break;
