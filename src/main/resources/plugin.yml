@@ -1,7 +1,10 @@
 name: PortableHole
 main: me.desht.portablehole.PortableHolePlugin
+description: Create temporary tunnels in the world
+website: http://dev.bukkit.org/server-mods/portablehole
 author: desht
 version: ${project.version}
+softdepend: [ Vault ]
 
 commands:
   ph:
