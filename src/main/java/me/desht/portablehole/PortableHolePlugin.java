@@ -17,6 +17,7 @@ package me.desht.portablehole;
     along with PortableHole.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -38,6 +39,7 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.mcstats.MetricsLite;
 
 public class PortableHolePlugin extends JavaPlugin {
 
@@ -73,7 +75,18 @@ public class PortableHolePlugin extends JavaPlugin {
 
 		processConfig();
 		
+		setupMetrics();
+		
 		instance = this;
+	}
+
+	private void setupMetrics() {
+		try {
+		    MetricsLite metrics = new MetricsLite(this);
+		    metrics.start();
+		} catch (IOException e) {
+			LogUtils.warning("Couldn't submit metrics stats: " + e.getMessage());
+		}
 	}
 
 	public void onDisable() {
@@ -109,6 +122,7 @@ public class PortableHolePlugin extends JavaPlugin {
 			if (!setupPermission()) {
 				LogUtils.warning("No permission plugin detected - author group checking disabled");
 			}
+		} else {
 			LogUtils.warning("Vault not loaded: no economy support");
 		}
 	}
