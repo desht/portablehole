@@ -65,6 +65,8 @@ book_title: Portable Hole
 
 # Default book text for books create with /ph give
 default_book_text:
+  - Portable Hole
+  -
   - Left-click to use!
 
 # Message the player about any costs taken from them
