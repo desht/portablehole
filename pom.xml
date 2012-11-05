@@ -87,8 +87,8 @@
                                     <shadedPattern>me.desht.portablehole.dhutils</shadedPattern>
                                 </relocation>
                                 <relocation>
-                                    <pattern>org.mcstats.metrics</pattern>
-                                    <shadedPattern>me.desht.portablehole.metrics</shadedPattern>
+                                    <pattern>org.mcstats</pattern>
+                                    <shadedPattern>me.desht.portablehole.mcstats</shadedPattern>
                                 </relocation>
                             </relocations>
                         </configuration>
