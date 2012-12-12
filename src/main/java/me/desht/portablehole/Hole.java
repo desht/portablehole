@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import me.desht.dhutils.BookItem;
 import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.MiscUtil;
 import me.desht.dhutils.PermissionUtils;
@@ -31,7 +32,6 @@ public class Hole {
 	private static final Set<Material> whiteList = new HashSet<Material>();
 	private static final Set<Material> blackList = new HashSet<Material>();
 	private static final Set<Material> terminators = new HashSet<Material>();
-
 
 	private static final Effect DEFAULT_EFFECT = Effect.ENDER_SIGNAL;
 

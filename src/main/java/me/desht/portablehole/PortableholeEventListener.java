@@ -17,6 +17,7 @@ package me.desht.portablehole;
     along with PortableHole.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import me.desht.dhutils.BookItem;
 import me.desht.dhutils.DHUtilsException;
 import me.desht.dhutils.MiscUtil;
 

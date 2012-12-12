@@ -6,9 +6,9 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 
+import me.desht.dhutils.BookItem;
 import me.desht.dhutils.MiscUtil;
 import me.desht.dhutils.commands.AbstractCommand;
-import me.desht.portablehole.BookItem;
 import me.desht.portablehole.HoleException;
 import me.desht.portablehole.PortableHolePlugin;
 
