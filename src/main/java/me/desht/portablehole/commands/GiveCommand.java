@@ -1,16 +1,17 @@
 package me.desht.portablehole.commands;
 
-import org.bukkit.Bukkit;
-import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.plugin.Plugin;
-
-import me.desht.dhutils.BookItem;
 import me.desht.dhutils.MiscUtil;
 import me.desht.dhutils.commands.AbstractCommand;
 import me.desht.portablehole.HoleException;
 import me.desht.portablehole.PortableHolePlugin;
+
+import org.bukkit.Bukkit;
+import org.bukkit.Material;
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.BookMeta;
+import org.bukkit.plugin.Plugin;
 
 public class GiveCommand extends AbstractCommand {
 
@@ -40,14 +41,14 @@ public class GiveCommand extends AbstractCommand {
 		
 		String title = plugin.getConfig().getString("book_title", "Portable Hole");
 		
-		BookItem bi = new BookItem(new ItemStack(387,1));
-		bi.setTitle(title);
-		bi.setAuthor(sender.getName());
-		String[] pages = plugin.getConfig().getStringList("default_book_text").toArray(new String[0]);
-		bi.setPages(pages);
+		BookMeta bm = (BookMeta)Bukkit.getItemFactory().getItemMeta(Material.WRITTEN_BOOK);
+		bm.setTitle(title);
+		bm.setAuthor(sender.getName());
+		bm.setPages(plugin.getConfig().getStringList("default_book_text"));
 		
-		ItemStack writtenbook = bi.getItemStack();
-		target.getInventory().addItem(writtenbook);
+		ItemStack writtenBook = new ItemStack(Material.WRITTEN_BOOK, 1);
+		writtenBook.setItemMeta(bm);
+		target.getInventory().addItem(writtenBook);
 		target.updateInventory();
 		
 		String msg = String.format(phPlugin.getMessage("gave_book"), title, target.getName());

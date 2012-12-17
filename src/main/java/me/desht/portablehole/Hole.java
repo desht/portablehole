@@ -5,7 +5,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import me.desht.dhutils.BookItem;
 import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.MiscUtil;
 import me.desht.dhutils.PermissionUtils;
@@ -24,6 +23,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.BookMeta;
 import org.bukkit.util.Vector;
 
 public class Hole {
@@ -267,16 +267,16 @@ public class Hole {
 			return;
 		}
 
-		BookItem book = new BookItem(item);
+		BookMeta bm = (BookMeta) item.getItemMeta();
 
-		if (validAuthors.contains(book.getAuthor())) {
+		if (validAuthors.contains(bm.getAuthor())) {
 			return;
 		}
 
 		if (!validGroups.isEmpty() && plugin.getPermissionHandler() != null) {
 			Permission perm = plugin.getPermissionHandler();
 			for (String group : validGroups) {
-				if (perm.playerInGroup((String)null, book.getAuthor(), group)) {
+				if (perm.playerInGroup((String)null, bm.getAuthor(), group)) {
 					return;
 				}
 			}

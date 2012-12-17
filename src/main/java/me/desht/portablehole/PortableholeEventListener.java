@@ -17,7 +17,6 @@ package me.desht.portablehole;
     along with PortableHole.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import me.desht.dhutils.BookItem;
 import me.desht.dhutils.DHUtilsException;
 import me.desht.dhutils.MiscUtil;
 
@@ -33,6 +32,7 @@ import org.bukkit.event.block.BlockPhysicsEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerPortalEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.BookMeta;
 import org.bukkit.material.Attachable;
 
 public class PortableholeEventListener implements Listener {
@@ -113,8 +113,8 @@ public class PortableholeEventListener implements Listener {
 		ItemStack i = player.getItemInHand();
 	
 		if (i.getType() == Material.WRITTEN_BOOK) {
-			BookItem book = new BookItem(i);
-			return book.getTitle() != null && book.getTitle().equals(plugin.getConfig().getString("book_title", "Portable Hole"));
+			BookMeta bm = (BookMeta) i.getItemMeta();
+			return bm.getTitle() != null && bm.getTitle().equals(plugin.getConfig().getString("book_title", "Portable Hole"));
 			// TODO: check if player is the author, with permission bypass
 		} else {
 			return false;
