@@ -39,12 +39,13 @@ author_validation:
   groups: [ ]
 
 #
-# Sound effects that get played when holes are opened/closed
+# Effects that get played when holes are opened/closed
 # Set to blank to play no sound
-sounds:
-  hole_open: mob.endermen.portal
-  hole_close: mob.endermen.portal
-
+effects:
+  hole_open: sound,name=enderman_teleport
+  hole_close: sound,name=enderman_teleport
+  hole_failed: sound,name=note_bass
+  
 # Show particle effect within the hole, diminishing as the hole ages
 # Use any *visual* effect from http://jd.bukkit.org/apidocs/org/bukkit/Effect.html)
 # Leave blank for no particle effect

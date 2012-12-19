@@ -26,6 +26,7 @@ import me.desht.dhutils.Cost;
 import me.desht.dhutils.DHUtilsException;
 import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.MiscUtil;
+import me.desht.dhutils.SpecialFX;
 import me.desht.dhutils.commands.CommandManager;
 import me.desht.portablehole.commands.GiveCommand;
 import me.desht.portablehole.commands.InfoCommand;
@@ -50,6 +51,7 @@ public class PortableHolePlugin extends JavaPlugin {
 	private Permission permission;
 	private final Set<String> validAuthors = new HashSet<String>();
 	private final Set<String> validGroups = new HashSet<String>();
+	private SpecialFX fx;
 	
 	private static PortableHolePlugin instance = null;
 	
@@ -74,6 +76,8 @@ public class PortableHolePlugin extends JavaPlugin {
 		creditManager.loadCredits();
 
 		processConfig();
+		
+		fx = new SpecialFX(getConfig().getConfigurationSection("effects"));
 		
 		setupMetrics();
 		
@@ -208,5 +212,9 @@ public class PortableHolePlugin extends JavaPlugin {
 
 	public String getMessage(String key) {
 		return getConfig().getString("messages." + key);
+	}
+
+	public SpecialFX getFX() {
+		return fx;
 	}
 }

@@ -52,6 +52,7 @@ public class PortableholeEventListener implements Listener {
 				Hole.create(plugin, event);
 				event.setCancelled(true);
 			} catch (DHUtilsException e) {
+				plugin.getFX().playEffect(event.getPlayer().getLocation(), "hole_failed");
 				MiscUtil.errorMessage(player, e.getMessage());
 			}
 		}

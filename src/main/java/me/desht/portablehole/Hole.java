@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Set;
 
 import me.desht.dhutils.LogUtils;
-import me.desht.dhutils.MiscUtil;
 import me.desht.dhutils.PermissionUtils;
 import me.desht.dhutils.cuboid.Cuboid;
 import me.desht.dhutils.cuboid.Cuboid.CuboidDirection;
@@ -24,6 +23,7 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BookMeta;
+import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Vector;
 
 public class Hole {
@@ -40,8 +40,8 @@ public class Hole {
 
 	private final Cuboid tunnelExtent;
 	private final List<BlockState> blockBackup;
-	private final int closeTaskId;
-	private final int particleTaskId;
+	private final BukkitTask closeTaskId;
+	private final BukkitTask particleTaskId;
 	private final int holeId;
 	private final BlockFace direction;
 	private final boolean locked;
@@ -106,7 +106,7 @@ public class Hole {
 		lifeTime = plugin.getConfig().getLong("lifetime.initial") + tunnelLength * plugin.getConfig().getLong("lifetime.per_length");
 
 		// add a delayed task to restore the tunnel's original materials
-		closeTaskId = Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
+		closeTaskId = Bukkit.getScheduler().runTaskLater(plugin, new Runnable() {
 			@Override
 			public void run() {
 				close(false);
@@ -114,28 +114,28 @@ public class Hole {
 		}, lifeTime);
 
 		if (!plugin.getConfig().getString("particle_effect").isEmpty()) {
-			particleTaskId = Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, new ParticleHandler(), 1L, 50L);
+			particleTaskId = Bukkit.getScheduler().runTaskTimer(plugin, new ParticleHandler(), 1L, 50L);
 		} else {
-			particleTaskId = -1;
+			particleTaskId = null;
 		}
 
 		// add this hole to the list of current holes
 		holeId = plugin.getHoleManager().addHole(this);
 
-		MiscUtil.playNamedSound(creationBlock.getLocation(), plugin.getConfig().getString("sounds.hole_open"), 1.0f, 1.0f);
+		plugin.getFX().playEffect(creationBlock.getLocation(), "hole_open");
 	}
 
-	public void close(boolean force) {
+	public void close(boolean closeEarly) {
 		restoreBlocks();
 
 		plugin.getHoleManager().removeHole(holeId);
 
-		if (force) Bukkit.getScheduler().cancelTask(closeTaskId);
+		if (closeEarly) closeTaskId.cancel();
 
-		if (particleTaskId != -1)
-			Bukkit.getScheduler().cancelTask(particleTaskId);
+		if (particleTaskId != null)
+			particleTaskId.cancel();
 
-		MiscUtil.playNamedSound(creationBlock.getLocation(), plugin.getConfig().getString("sounds.hole_close"), 1.0f, 1.0f);
+		plugin.getFX().playEffect(creationBlock.getLocation(), "hole_close");
 	}
 
 	public Cuboid getExtent() {
@@ -172,7 +172,9 @@ public class Hole {
 
 	private void restoreBlocks() {
 		for (BlockState bs : blockBackup) {
-			bs.update(true);
+			if (bs.getBlock().getType() == Material.AIR) {
+				bs.update(true);
+			}
 		}
 	}
 
@@ -233,9 +235,6 @@ public class Hole {
 
 		if (blackList.contains(mat)) return false;
 		if (whiteList.contains(mat)) return true;
-
-		if (PortableHolePlugin.getInstance().getHoleManager().getHole(b.getLocation()) != null) 
-			return false;	// overlapping holes not allowed
 
 		return !defaultBlockers.contains(mat); // || terminators.contains(mat);
 	}
