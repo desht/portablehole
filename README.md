@@ -2,9 +2,9 @@
 
 PortableHole is a Bukkit plugin which lets you create temporary tunnels in the world.  Tunnels are opened with a special
 written book, with the (configurable) title "Portable Hole", and automatically close after a time dependent on the tunnel
-length.  The plugin respects world-protection plugins by firing and listening for a BlockBreakEvent.  Full control is 
-provided over who can create tunnels, and a wide range of tunnelling costs (items, XP, hunger, health, money, item durability...)
-is supported.
+length.  The plugin respects world-protection plugins by firing a BlockBreakEvent and checking for cancellation.  Full control
+is  provided over who can create tunnels, and a wide range of tunnelling costs (items, XP, hunger, health, money,
+item durability...) is supported.
 
 ## Installation
 
