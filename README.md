@@ -38,5 +38,3 @@ Detailed documentation is available on bukkitdev: http://dev.bukkit.org/server-m
 
 PortableHole by Des Herriott is licensed under the [Gnu GPL v3](http://www.gnu.org/licenses/gpl-3.0.html). 
 
-It includes the third-party BookItem class by Joshua Reetz, also licensed under the Gnu GPL v3.
-
