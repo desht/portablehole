@@ -29,6 +29,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockFromToEvent;
 import org.bukkit.event.block.BlockPhysicsEvent;
+import org.bukkit.event.inventory.CraftItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerPortalEvent;
 import org.bukkit.inventory.ItemStack;
@@ -58,6 +59,23 @@ public class PortableholeEventListener implements Listener {
 		}
 	}
 
+	/**
+	 * When a portable hole book is crafted, set its author to the player who crafted it.
+	 * 
+	 * @param event
+	 */
+	@EventHandler(ignoreCancelled = true)
+	public void onCrafted(CraftItemEvent event) {
+		ItemStack item = event.getCurrentItem();
+		if (item.getType() != Material.WRITTEN_BOOK) return;
+		
+		BookMeta bm = (BookMeta) item.getItemMeta();
+		if (!bm.getTitle().equals(plugin.getConfig().getString("book_title", "Portable Hole"))) return;
+		
+		bm.setAuthor(event.getWhoClicked().getName());
+		item.setItemMeta(bm);
+	}
+	
 	/**
 	 * Stop players getting ported if nether or ender portal blocks are used for the tunnel material.
 	 * 

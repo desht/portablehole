@@ -41,13 +41,15 @@ public class GiveCommand extends AbstractCommand {
 		
 		String title = plugin.getConfig().getString("book_title", "Portable Hole");
 		
-		BookMeta bm = (BookMeta)Bukkit.getItemFactory().getItemMeta(Material.WRITTEN_BOOK);
-		bm.setTitle(title);
-		bm.setAuthor(sender.getName());
-		bm.setPages(plugin.getConfig().getStringList("default_book_text"));
+//		BookMeta bm = (BookMeta)Bukkit.getItemFactory().getItemMeta(Material.WRITTEN_BOOK);
+//		bm.setTitle(title);
+//		bm.setAuthor(sender.getName());
+//		bm.setPages(plugin.getConfig().getStringList("default_book_text"));
+//		
+//		ItemStack writtenBook = new ItemStack(Material.WRITTEN_BOOK, 1);
+//		writtenBook.setItemMeta(bm);
 		
-		ItemStack writtenBook = new ItemStack(Material.WRITTEN_BOOK, 1);
-		writtenBook.setItemMeta(bm);
+		ItemStack writtenBook = ((PortableHolePlugin)plugin).makeBookItem(sender.getName());
 		target.getInventory().addItem(writtenBook);
 		target.updateInventory();
 		

@@ -34,8 +34,13 @@ import me.desht.portablehole.commands.ReloadCommand;
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.permission.Permission;
 
+import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.ShapedRecipe;
+import org.bukkit.inventory.meta.BookMeta;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.RegisteredServiceProvider;
@@ -78,6 +83,8 @@ public class PortableHolePlugin extends JavaPlugin {
 		processConfig();
 		
 		fx = new SpecialFX(getConfig().getConfigurationSection("effects"));
+		
+		setupBookRecipe();
 		
 		setupMetrics();
 		
@@ -216,5 +223,31 @@ public class PortableHolePlugin extends JavaPlugin {
 
 	public SpecialFX getFX() {
 		return fx;
+	}
+	
+	public ItemStack makeBookItem(String author) {
+		String title = getConfig().getString("book_title", "Portable Hole");
+		
+		BookMeta bm = (BookMeta)Bukkit.getItemFactory().getItemMeta(Material.WRITTEN_BOOK);
+		bm.setTitle(title);
+		if (author != null) {
+			bm.setAuthor(author);
+		}
+		bm.setPages(getConfig().getStringList("default_book_text"));
+		
+		ItemStack writtenBook = new ItemStack(Material.WRITTEN_BOOK, 1);
+		writtenBook.setItemMeta(bm);
+		return writtenBook;
+	}
+	
+	private void setupBookRecipe() {
+		ItemStack writtenBook = makeBookItem(null);
+		
+		ShapedRecipe recipe = new ShapedRecipe(writtenBook);
+		recipe.shape(" E ", "RBR", " E ");
+		recipe.setIngredient('E', Material.ENDER_PEARL);
+		recipe.setIngredient('R', Material.REDSTONE);
+		recipe.setIngredient('B', Material.BOOK);
+		getServer().addRecipe(recipe);
 	}
 }
