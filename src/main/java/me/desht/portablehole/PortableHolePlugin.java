@@ -214,7 +214,11 @@ public class PortableHolePlugin extends JavaPlugin {
 
 		getCreditManager().loadCosts();
 
-		setupBookRecipe();
+		try {
+			setupBookRecipe();
+		} catch (Exception e) {
+			LogUtils.warning("can't set up crafting recipe: " + e.getMessage());
+		}
 	}
 
 	public Permission getPermissionHandler() {
