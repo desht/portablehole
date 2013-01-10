@@ -90,6 +90,23 @@ messages:
   cant_afford: Can't afford to dig!
   credits: You have %d tunnelling credits.
   gave_book: "Gave a %s book to &e%s."
+  got_book: "You have been given a %s book."
   not_valid_author: The author of this book isn't allowed to create holes.
   charge_made: "Tunnelling charge taken: &e%s"
 
+#
+# Book crafting configuration
+crafting:
+  # shaped or shapeless recipe?
+  shaped: true
+  # the recipe: for shaped, a list of 1-3 rows, each row with 1-3 letters
+  #  for shapeless, a list of 1-9 materials in any order
+  recipe: [ " E ", "RBR", " E " ]
+  # the ingredients: map a letter in the recipe to a material
+  ingredients:
+    E: ENDER_PEARL
+    B: BOOK
+    R: REDSTONE
+  # the author of any crafted books (empty means the crafting player will be author)
+  # you might want to set this to a different player if you use author_validation (see above)
+  author: ""

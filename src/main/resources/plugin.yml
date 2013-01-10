@@ -12,7 +12,7 @@ commands:
     usage: |
       /<command> info
       /<command> reload
-      /<command> give [<player>]
+      /<command> give [<player>] [-author <author>]
 
 permissions:
   portablehole.admin:

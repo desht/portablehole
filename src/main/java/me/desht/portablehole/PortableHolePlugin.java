@@ -19,6 +19,7 @@ package me.desht.portablehole;
 
 import java.io.IOException;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -38,8 +39,11 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.Recipe;
 import org.bukkit.inventory.ShapedRecipe;
+import org.bukkit.inventory.ShapelessRecipe;
 import org.bukkit.inventory.meta.BookMeta;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
@@ -57,44 +61,42 @@ public class PortableHolePlugin extends JavaPlugin {
 	private final Set<String> validAuthors = new HashSet<String>();
 	private final Set<String> validGroups = new HashSet<String>();
 	private SpecialFX fx;
-	
+
 	private static PortableHolePlugin instance = null;
-	
+
 	public void onEnable() { 
 
 		LogUtils.init(this);
-		
+
 		PluginManager pm = this.getServer().getPluginManager();
 
 		pm.registerEvents(new PortableholeEventListener(this), this);
 
 		setupVault(pm);
-		
+
 		registerCommands();
-		
+
 		this.getConfig().options().copyDefaults(true);
 		this.getConfig().options().header("See http://dev.bukkit.org/server-mods/portablehole/pages/configuration");
 		this.saveConfig();
-		
+
 		holeManager = new HoleManager();
 		creditManager = new CreditManager(this);
 		creditManager.loadCredits();
 
 		processConfig();
-		
+
 		fx = new SpecialFX(getConfig().getConfigurationSection("effects"));
-		
-		setupBookRecipe();
-		
+
 		setupMetrics();
-		
+
 		instance = this;
 	}
 
 	private void setupMetrics() {
 		try {
-		    MetricsLite metrics = new MetricsLite(this);
-		    metrics.start();
+			MetricsLite metrics = new MetricsLite(this);
+			metrics.start();
 		} catch (IOException e) {
 			LogUtils.warning("Couldn't submit metrics stats: " + e.getMessage());
 		}
@@ -105,12 +107,12 @@ public class PortableHolePlugin extends JavaPlugin {
 		for (Hole h : holeManager.getHoles()) {
 			h.close(true);
 		}
-		
+
 		creditManager.saveCredits();
-		
+
 		instance = null;
 	}
-	
+
 	@Override
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 		try {
@@ -120,7 +122,7 @@ public class PortableHolePlugin extends JavaPlugin {
 			return true;
 		}
 	}
-	
+
 	private void setupVault(PluginManager pm) {
 		Plugin vault =  pm.getPlugin("Vault");
 		if (vault != null && vault instanceof net.milkbowl.vault.Vault) {
@@ -146,7 +148,7 @@ public class PortableHolePlugin extends JavaPlugin {
 
 		return (economy != null);
 	}
-	
+
 	private boolean setupPermission() {
 		RegisteredServiceProvider<Permission> permissionProvider = getServer().getServicesManager().getRegistration(net.milkbowl.vault.permission.Permission.class);
 		if (permissionProvider != null) {
@@ -155,7 +157,7 @@ public class PortableHolePlugin extends JavaPlugin {
 
 		return (permission != null);
 	}
-	
+
 	public static PortableHolePlugin getInstance() {
 		return instance;
 	}
@@ -180,7 +182,7 @@ public class PortableHolePlugin extends JavaPlugin {
 			validAuthors.add(a);
 		}
 	}
-	
+
 
 	private void setValidGroups(List<String> groups) {
 		validGroups.clear();
@@ -188,7 +190,7 @@ public class PortableHolePlugin extends JavaPlugin {
 			validGroups.add(a);
 		}
 	}
-	
+
 	public Set<String> getValidAuthors() {
 		return validAuthors;
 	}
@@ -196,21 +198,23 @@ public class PortableHolePlugin extends JavaPlugin {
 	public Set<String> getValidGroups() {
 		return validGroups;
 	}
-	
+
 	public void processConfig() {
 		Hole.initMaterials(this);
-		
+
 		setValidAuthors(getConfig().getStringList("author_validation.players"));
 		setValidGroups(getConfig().getStringList("author_validation.groups"));
-		
+
 		String level = getConfig().getString("log_level");
 		try {
 			LogUtils.setLogLevel(level);
 		} catch (IllegalArgumentException e) {
 			LogUtils.warning("invalid log level " + level + " - ignored");
 		}
-		
+
 		getCreditManager().loadCosts();
+
+		setupBookRecipe();
 	}
 
 	public Permission getPermissionHandler() {
@@ -224,30 +228,58 @@ public class PortableHolePlugin extends JavaPlugin {
 	public SpecialFX getFX() {
 		return fx;
 	}
-	
+
 	public ItemStack makeBookItem(String author) {
 		String title = getConfig().getString("book_title", "Portable Hole");
-		
+
 		BookMeta bm = (BookMeta)Bukkit.getItemFactory().getItemMeta(Material.WRITTEN_BOOK);
 		bm.setTitle(title);
-		if (author != null) {
+		if (author != null && !author.isEmpty()) {
 			bm.setAuthor(author);
 		}
 		bm.setPages(getConfig().getStringList("default_book_text"));
-		
+
 		ItemStack writtenBook = new ItemStack(Material.WRITTEN_BOOK, 1);
 		writtenBook.setItemMeta(bm);
 		return writtenBook;
 	}
-	
+
 	private void setupBookRecipe() {
-		ItemStack writtenBook = makeBookItem(null);
-		
-		ShapedRecipe recipe = new ShapedRecipe(writtenBook);
-		recipe.shape(" E ", "RBR", " E ");
-		recipe.setIngredient('E', Material.ENDER_PEARL);
-		recipe.setIngredient('R', Material.REDSTONE);
-		recipe.setIngredient('B', Material.BOOK);
-		getServer().addRecipe(recipe);
+		Iterator<Recipe> iter = getServer().recipeIterator();
+		while (iter.hasNext()) {
+			Recipe r = iter.next();
+			ItemStack res = r.getResult();
+			if (res.getType() == Material.WRITTEN_BOOK) {
+				String title = ((BookMeta)res.getItemMeta()).getTitle();
+				if (title.equals(getConfig().getString("book_title", "Portable Hole"))) {
+					LogUtils.fine("found existing portable hole book recipe, removing...");
+					iter.remove();
+				}
+			}
+		}
+
+		String author = getConfig().getString("crafting.author", "");
+		ItemStack writtenBook = makeBookItem(author);
+
+		if (getConfig().getBoolean("crafting.shaped")) {
+			ShapedRecipe recipe = new ShapedRecipe(writtenBook);
+			List<String> l = getConfig().getStringList("crafting.recipe");
+			recipe.shape(l.toArray(new String[0]));
+			ConfigurationSection cs = getConfig().getConfigurationSection("crafting.ingredients");
+			for (String k : cs.getKeys(false)) {
+				Material mat = Material.matchMaterial(cs.getString(k));
+				recipe.setIngredient(k.charAt(0), mat);
+			}
+			getServer().addRecipe(recipe);
+			LogUtils.fine("added (shaped) recipe for portable hole book");
+		} else {
+			ShapelessRecipe recipe = new ShapelessRecipe(writtenBook);
+			List<String> l = getConfig().getStringList("crafting.recipe");
+			for (String s : l) {
+				recipe.addIngredient(Material.matchMaterial(s));
+			}
+			getServer().addRecipe(recipe);
+			LogUtils.fine("added (shapeless) recipe for portable hole book");
+		}
 	}
 }

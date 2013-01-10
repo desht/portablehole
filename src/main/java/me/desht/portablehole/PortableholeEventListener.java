@@ -60,7 +60,8 @@ public class PortableholeEventListener implements Listener {
 	}
 
 	/**
-	 * When a portable hole book is crafted, set its author to the player who crafted it.
+	 * When a portable hole book is crafted, set its author to the player who crafted it 
+	 * (assuming the author wasn't already specified in the config with "crafting.author")
 	 * 
 	 * @param event
 	 */
@@ -68,14 +69,16 @@ public class PortableholeEventListener implements Listener {
 	public void onCrafted(CraftItemEvent event) {
 		ItemStack item = event.getCurrentItem();
 		if (item.getType() != Material.WRITTEN_BOOK) return;
-		
+
 		BookMeta bm = (BookMeta) item.getItemMeta();
-		if (!bm.getTitle().equals(plugin.getConfig().getString("book_title", "Portable Hole"))) return;
-		
-		bm.setAuthor(event.getWhoClicked().getName());
-		item.setItemMeta(bm);
+		if (bm.getTitle().equals(plugin.getConfig().getString("book_title", "Portable Hole"))) {
+			if (bm.getAuthor() == null || bm.getAuthor().isEmpty()) {
+				bm.setAuthor(event.getWhoClicked().getName());
+			}
+			item.setItemMeta(bm);
+		}
 	}
-	
+
 	/**
 	 * Stop players getting ported if nether or ender portal blocks are used for the tunnel material.
 	 * 
@@ -89,7 +92,7 @@ public class PortableholeEventListener implements Listener {
 	}
 
 	/**
-	 * Stops physics events - including preventing of attachable items popping off the tunnel.
+	 * Stops physics events in & around the tunnel.
 	 * 
 	 * @param event
 	 */
@@ -130,7 +133,7 @@ public class PortableholeEventListener implements Listener {
 
 	private boolean holdingHoleBook(Player player) {
 		ItemStack i = player.getItemInHand();
-	
+
 		if (i.getType() == Material.WRITTEN_BOOK) {
 			BookMeta bm = (BookMeta) i.getItemMeta();
 			return bm.getTitle() != null && bm.getTitle().equals(plugin.getConfig().getString("book_title", "Portable Hole"));
