@@ -32,8 +32,10 @@ public class InfoCommand extends AbstractCommand {
 		
 		MiscUtil.statusMessage(sender, phPlugin.getMessage("cost_list"));
 		for (CostCredit cc : cm.getCosts()) {
-			MiscUtil.statusMessage(sender, ChatColor.RED + "\u2022 " + ChatColor.RESET + cc.getCost().getDescription()
-					+ " = " + cc.getCredit() + "C");
+			MiscUtil.statusMessage(sender, ChatColor.RED + "\u2022 "
+					+ ChatColor.YELLOW + cc.getCost().getDescription()
+					+ ChatColor.WHITE + " = "
+					+ ChatColor.YELLOW + cc.getCredit() + "C");
 		}
 		
 		return true;

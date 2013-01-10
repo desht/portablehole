@@ -88,7 +88,7 @@ messages:
   too_deep: Can't create a hole that deep.
   stopped: Something prevents you from tunnelling here...
   cant_afford: Can't afford to dig!
-  credits: You have %d tunnelling credits.
+  credits: You have &6%d&- tunnelling credits.
   gave_book: "Gave a %s book to &e%s."
   got_book: "You have been given a %s book."
   not_valid_author: The author of this book isn't allowed to create holes.
