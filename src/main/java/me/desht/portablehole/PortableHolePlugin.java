@@ -261,6 +261,10 @@ public class PortableHolePlugin extends JavaPlugin {
 				}
 			}
 		}
+		
+		if (!getConfig().getBoolean("crafting.enabled")) {
+			return;
+		}
 
 		String author = getConfig().getString("crafting.author", "");
 		ItemStack writtenBook = makeBookItem(author);
