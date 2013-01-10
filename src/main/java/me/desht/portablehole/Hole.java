@@ -13,6 +13,7 @@ import net.milkbowl.vault.permission.Permission;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Effect;
+import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
@@ -70,12 +71,16 @@ public class Hole {
 
 		// store the blocks that currently make up the tunnel
 		// also check here that we're actually allowed to tunnel by other plugins...
+		boolean overrideProtection = PermissionUtils.isAllowedTo(player, "portablehole.override.protection")
+				|| player.getGameMode() == GameMode.CREATIVE;
 		blockBackup = new ArrayList<BlockState>();
 		for (Block tunnelBlock : tunnelExtent) {
-			BlockBreakEvent breakEvent = new BlockBreakEvent(tunnelBlock, player);
-			Bukkit.getPluginManager().callEvent(breakEvent);
-			if (breakEvent.isCancelled()) {
-				throw new HoleException(plugin.getMessage("stopped"));
+			if (!overrideProtection) {
+				BlockBreakEvent breakEvent = new BlockBreakEvent(tunnelBlock, player);
+				Bukkit.getPluginManager().callEvent(breakEvent);
+				if (breakEvent.isCancelled()) {
+					throw new HoleException(plugin.getMessage("stopped"));
+				}
 			}
 			blockBackup.add(tunnelBlock.getState());
 		}

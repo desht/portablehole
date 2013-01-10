@@ -111,7 +111,11 @@ public class CreditManager {
 		return credits.get(playerName);
 	}
 	
-	private class CostCredit {
+	public List<CostCredit>getCosts() {
+		return costs;
+	}
+	
+	public class CostCredit {
 		private final Cost cost;
 		private final int credit;
 		

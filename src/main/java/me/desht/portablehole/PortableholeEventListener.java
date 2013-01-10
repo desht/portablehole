@@ -20,6 +20,7 @@ package me.desht.portablehole;
 import me.desht.dhutils.DHUtilsException;
 import me.desht.dhutils.MiscUtil;
 
+import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -27,6 +28,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockFromToEvent;
 import org.bukkit.event.block.BlockPhysicsEvent;
 import org.bukkit.event.inventory.CraftItemEvent;
@@ -56,6 +58,18 @@ public class PortableholeEventListener implements Listener {
 				plugin.getFX().playEffect(event.getPlayer().getLocation(), "hole_failed");
 				MiscUtil.errorMessage(player, e.getMessage());
 			}
+		}
+	}
+	
+	/**
+	 * Prevent block breakage in creative mode when holding a hole book.
+	 * 
+	 * @param event
+	 */
+	@EventHandler
+	public void onBlockBreak(BlockBreakEvent event) {
+		if (event.getPlayer().getGameMode() == GameMode.CREATIVE && holdingHoleBook(event.getPlayer())) {
+			event.setCancelled(true);
 		}
 	}
 

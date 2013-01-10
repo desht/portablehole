@@ -24,8 +24,9 @@ permissions:
       portablehole.commands.info: true
       portablehole.commands.reload: true
       portablehole.commands.give: true
+      portablehole.override.protection: true
   portablehole.create:
-    description: Allows creation of tunnels with the portable hole
+    description: Allows creation of tunnels with a portable hole book
     default: true
   portablehole.commands.info:
     description: Allows usage of the /ph info command
@@ -38,4 +39,7 @@ permissions:
     default: op
   portablehole.cost.exempt:
     description: Do not apply any tunnelling costs
+    default: op
+  portablehole.override.protection:
+    description: Create tunnels even when protection plugins say no
     default: op

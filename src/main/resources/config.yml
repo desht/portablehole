@@ -93,6 +93,7 @@ messages:
   got_book: "You have been given a %s book."
   not_valid_author: The author of this book isn't allowed to create holes.
   charge_made: "Tunnelling charge taken: &e%s"
+  cost_list: "Tunnelling costs (only the first affordable cost will be taken):"
 
 #
 # Book crafting configuration
