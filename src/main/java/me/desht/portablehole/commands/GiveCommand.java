@@ -6,31 +6,30 @@ import me.desht.portablehole.HoleException;
 import me.desht.portablehole.PortableHolePlugin;
 
 import org.bukkit.Bukkit;
-import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.BookMeta;
 import org.bukkit.plugin.Plugin;
 
 public class GiveCommand extends AbstractCommand {
 
 	public GiveCommand() {
-		super("ph g", 0, 1);
+		super("ph g");
 		setPermissionNode("portablehole.commands.give");
-		setUsage("/ph give [<playername>]");
+		setUsage("/ph give [<playername>] [-author <authorname>]");
+		setOptions(new String[] { "author:s" });
 	}
 
 	@SuppressWarnings("deprecation")
 	@Override
 	public boolean execute(Plugin plugin, CommandSender sender, String[] args) {
-		notFromConsole(sender);
 		
 		PortableHolePlugin phPlugin = (PortableHolePlugin) plugin;
 		
 		Player target;
 		
 		if (args.length == 0) {
+			notFromConsole(sender);
 			target = (Player) sender;
 		} else {
 			target = Bukkit.getPlayer(args[0]);
@@ -40,22 +39,18 @@ public class GiveCommand extends AbstractCommand {
 		}
 		
 		String title = plugin.getConfig().getString("book_title", "Portable Hole");
+		String author = hasOption("author") ? getStringOption("author") : sender.getName();
 		
-//		BookMeta bm = (BookMeta)Bukkit.getItemFactory().getItemMeta(Material.WRITTEN_BOOK);
-//		bm.setTitle(title);
-//		bm.setAuthor(sender.getName());
-//		bm.setPages(plugin.getConfig().getStringList("default_book_text"));
-//		
-//		ItemStack writtenBook = new ItemStack(Material.WRITTEN_BOOK, 1);
-//		writtenBook.setItemMeta(bm);
-		
-		ItemStack writtenBook = ((PortableHolePlugin)plugin).makeBookItem(sender.getName());
+		ItemStack writtenBook = ((PortableHolePlugin)plugin).makeBookItem(author);
 		target.getInventory().addItem(writtenBook);
 		target.updateInventory();
 		
 		String msg = String.format(phPlugin.getMessage("gave_book"), title, target.getName());
 		MiscUtil.statusMessage(sender, msg);
-		
+		if (!sender.getName().equals(target.getName())) {
+			msg = String.format(phPlugin.getMessage("got_book"), title);
+			MiscUtil.alertMessage(target, msg);
+		}
 		return true;
 	}
 
