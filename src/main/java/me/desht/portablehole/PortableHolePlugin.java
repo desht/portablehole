@@ -116,7 +116,7 @@ public class PortableHolePlugin extends JavaPlugin {
 	@Override
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 		try {
-			return cmds.dispatch(sender, command.getName(), args);
+			return cmds.dispatch(sender, command, label, args);
 		} catch (DHUtilsException e) {
 			MiscUtil.errorMessage(sender, e.getMessage());
 			return true;
