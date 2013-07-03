@@ -20,16 +20,16 @@ public class CreditManager {
 	private final PortableHolePlugin plugin;
 	private final List<CostCredit> costs = new ArrayList<CostCredit>();
 	private final Map<String, Integer> credits = new HashMap<String,Integer>();
-	
+
 	public CreditManager(PortableHolePlugin plugin) {
 		this.plugin = plugin;
-		
+
 		loadCosts();
 	}
-	
+
 	public void loadCosts() {
 		List<?> l = plugin.getConfig().getList("costs");
-		
+
 		costs.clear();
 		for (Object o : l) {
 			@SuppressWarnings("unchecked")
@@ -45,26 +45,26 @@ public class CreditManager {
 			}
 		}
 	}
-	
+
 	public void loadCredits() {
 		File f = new File(plugin.getDataFolder(), "credits.yml");
 		if (!f.exists())
 			return;
-		
+
 		Configuration cfg = YamlConfiguration.loadConfiguration(f);
 		for (String k : cfg.getKeys(false)) {
 			credits.put(k, cfg.getInt(k));
 		}
 	}
-	
+
 	public void saveCredits() {
 		File f = new File(plugin.getDataFolder(), "credits.yml");
-		
+
 		YamlConfiguration cfg = new YamlConfiguration();
 		for (Entry<String, Integer> entry :	credits.entrySet()) {
 			cfg.set(entry.getKey(), entry.getValue());
 		}
-		
+
 		try {
 			cfg.save(f);
 		} catch (IOException e) {
@@ -92,13 +92,13 @@ public class CreditManager {
 		}
 		return false;
 	}
-	
+
 	public void giveCredit(Player p, int credit) {
 		String playerName = p.getName();
 		credits.put(playerName, getCredit(p) + credit);
 		LogUtils.fine("give " + credit + " credit to " + playerName + " - now has " + credits.get(playerName) + " credits");
 	}
-	
+
 	public void takeCredit(Player player, int credit) {
 		giveCredit(player, -credit);
 	}
@@ -110,24 +110,24 @@ public class CreditManager {
 		}
 		return credits.get(playerName);
 	}
-	
+
 	public List<CostCredit>getCosts() {
 		return costs;
 	}
-	
+
 	public class CostCredit {
 		private final Cost cost;
 		private final int credit;
-		
+
 		public CostCredit(Cost c, int credit) {
 			this.cost = c;
 			this.credit = credit;
 		}
-		
+
 		public Cost getCost() {
 			return cost;
 		}
-		
+
 		public int getCredit() {
 			return credit;
 		}

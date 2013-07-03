@@ -10,7 +10,7 @@ import org.bukkit.plugin.Plugin;
 public class ReloadCommand extends AbstractCommand {
 
 	public ReloadCommand() {
-		super("ph r", 0, 0);
+		super("ph reload", 0, 0);
 		setPermissionNode("portablehole.commands.reload");
 		setUsage("/ph reload");
 	}
@@ -22,7 +22,7 @@ public class ReloadCommand extends AbstractCommand {
 		((PortableHolePlugin)plugin).processConfig();
 
 		MiscUtil.statusMessage(sender, "Plugin config has been reloaded");
-		
+
 		return true;
 	}
 

@@ -51,6 +51,8 @@ import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.mcstats.MetricsLite;
 
+import com.google.common.base.Joiner;
+
 public class PortableHolePlugin extends JavaPlugin {
 
 	private HoleManager holeManager;
@@ -241,7 +243,7 @@ public class PortableHolePlugin extends JavaPlugin {
 		if (author != null && !author.isEmpty()) {
 			bm.setAuthor(author);
 		}
-		bm.setPages(getConfig().getStringList("default_book_text"));
+		bm.addPage(Joiner.on("\n").join(getConfig().getStringList("default_book_text")));
 
 		ItemStack writtenBook = new ItemStack(Material.WRITTEN_BOOK, 1);
 		writtenBook.setItemMeta(bm);
@@ -261,7 +263,7 @@ public class PortableHolePlugin extends JavaPlugin {
 				}
 			}
 		}
-		
+
 		if (!getConfig().getBoolean("crafting.enabled")) {
 			return;
 		}

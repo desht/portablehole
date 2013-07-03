@@ -14,7 +14,7 @@ import org.bukkit.plugin.Plugin;
 public class GiveCommand extends AbstractCommand {
 
 	public GiveCommand() {
-		super("ph g");
+		super("ph give");
 		setPermissionNode("portablehole.commands.give");
 		setUsage("/ph give [<playername>] [-author <authorname>]");
 		setOptions(new String[] { "author:s" });
@@ -23,11 +23,11 @@ public class GiveCommand extends AbstractCommand {
 	@SuppressWarnings("deprecation")
 	@Override
 	public boolean execute(Plugin plugin, CommandSender sender, String[] args) {
-		
+
 		PortableHolePlugin phPlugin = (PortableHolePlugin) plugin;
-		
+
 		Player target;
-		
+
 		if (args.length == 0) {
 			notFromConsole(sender);
 			target = (Player) sender;
@@ -37,14 +37,14 @@ public class GiveCommand extends AbstractCommand {
 				throw new HoleException("Player '" + args[0] + "' is not online.");
 			}
 		}
-		
+
 		String title = plugin.getConfig().getString("book_title", "Portable Hole");
 		String author = hasOption("author") ? getStringOption("author") : sender.getName();
-		
+
 		ItemStack writtenBook = ((PortableHolePlugin)plugin).makeBookItem(author);
 		target.getInventory().addItem(writtenBook);
 		target.updateInventory();
-		
+
 		String msg = String.format(phPlugin.getMessage("gave_book"), title, target.getName());
 		MiscUtil.statusMessage(sender, msg);
 		if (!sender.getName().equals(target.getName())) {

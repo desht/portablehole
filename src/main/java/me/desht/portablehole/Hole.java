@@ -22,6 +22,7 @@ import org.bukkit.block.BlockState;
 import org.bukkit.entity.Player;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BookMeta;
 import org.bukkit.scheduler.BukkitTask;
@@ -29,10 +30,10 @@ import org.bukkit.util.Vector;
 
 public class Hole {
 
-	private static final Set<Material> defaultBlockers = new HashSet<Material>();
-	private static final Set<Material> whiteList = new HashSet<Material>();
+//	private static final Set<Material> defaultBlockers = new HashSet<Material>();
+//	private static final Set<Material> whiteList = new HashSet<Material>();
 	private static final Set<Material> blackList = new HashSet<Material>();
-	private static final Set<Material> terminators = new HashSet<Material>();
+//	private static final Set<Material> terminators = new HashSet<Material>();
 
 	private static final Effect DEFAULT_EFFECT = Effect.ENDER_SIGNAL;
 
@@ -40,7 +41,7 @@ public class Hole {
 	private static final int DEFAULT_MAX_DISTANCE = 31;
 
 	private final Cuboid tunnelExtent;
-	private final List<BlockState> blockBackup;
+	private final List<BlockState> blockBackup = new ArrayList<BlockState>();
 	private final BukkitTask closeTaskId;
 	private final BukkitTask particleTaskId;
 	private final int holeId;
@@ -68,22 +69,6 @@ public class Hole {
 		direction = f.getOppositeFace();
 
 		tunnelExtent = getTunnelExtent(player, creationBlock, direction);
-
-		// store the blocks that currently make up the tunnel
-		// also check here that we're actually allowed to tunnel by other plugins...
-		boolean overrideProtection = PermissionUtils.isAllowedTo(player, "portablehole.override.protection")
-				|| player.getGameMode() == GameMode.CREATIVE;
-		blockBackup = new ArrayList<BlockState>();
-		for (Block tunnelBlock : tunnelExtent) {
-			if (!overrideProtection) {
-				BlockBreakEvent breakEvent = new BlockBreakEvent(tunnelBlock, player);
-				Bukkit.getPluginManager().callEvent(breakEvent);
-				if (breakEvent.isCancelled()) {
-					throw new HoleException(plugin.getMessage("stopped"));
-				}
-			}
-			blockBackup.add(tunnelBlock.getState());
-		}
 
 		int tunnelLength = getLength();
 
@@ -135,10 +120,13 @@ public class Hole {
 
 		plugin.getHoleManager().removeHole(holeId);
 
-		if (closeEarly) closeTaskId.cancel();
+		if (closeEarly) {
+			closeTaskId.cancel();
+		}
 
-		if (particleTaskId != null)
+		if (particleTaskId != null) {
 			particleTaskId.cancel();
+		}
 
 		plugin.getFX().playEffect(creationBlock.getLocation(), "hole_close");
 	}
@@ -166,8 +154,9 @@ public class Hole {
 	 */
 	public int getLength() {
 		int tunnelSize = tunnelExtent.volume();
-		if (direction.getModY() == 0)	// horizontal tunnel
+		if (direction.getModY() == 0) { // horizontal tunnel
 			tunnelSize /= 2;
+		}
 		return tunnelSize;
 	}
 
@@ -185,7 +174,7 @@ public class Hole {
 
 	/**
 	 * Work out where a new hole would go, starting from the given block, going in the given direction.
-	 * 
+	 *
 	 * @param player	Player who is creating the hole
 	 * @param b	Starting block (block clicked by player)
 	 * @param direction	Direction the hole will ho
@@ -194,54 +183,86 @@ public class Hole {
 		boolean isHorizontal = direction.getModY() == 0;
 		Block b1 = b;
 		int nTunnelled = 0;
-		int max_dist = isHorizontal ? plugin.getConfig().getInt("max_tunnel_length.horizontal", DEFAULT_MAX_DISTANCE) : plugin.getConfig().getInt("max_tunnel_length.vertical", DEFAULT_MAX_DISTANCE);
-		boolean voidTunnelling = plugin.getConfig().getBoolean("void_tunnelling", false);
-		
-		do {
-			if (!isTunnellable(b1) || (isHorizontal && !isTunnellable(b1.getRelative(BlockFace.DOWN)))) {
-				throw new HoleException(plugin.getMessage("cant_create"));
-			}
-			if (b1.getY() <= 1 && !voidTunnelling) {
-				// stop the player from opening a tunnel into the void
-				throw new HoleException(plugin.getMessage("cant_create"));
-			}
-			if (isTerminator(b1) && !b1.equals(b)) {
-				// we've reached the end of the tunnel
+		int max_dist = isHorizontal ?plugin.getConfig().getInt("max_tunnel_length.horizontal", DEFAULT_MAX_DISTANCE) : plugin.getConfig().getInt("max_tunnel_length.vertical", DEFAULT_MAX_DISTANCE);
+
+		boolean overrideProtection = PermissionUtils.isAllowedTo(p, "portablehole.override.protection") || p.getGameMode() == GameMode.CREATIVE;
+		boolean voidOK = plugin.getConfig().getBoolean("void_tunnelling");
+
+		List<BlockState> states = new ArrayList<BlockState>();
+		while (true) {
+			if (!checkBlock(overrideProtection ? null : p, b1, states, voidOK, false)) {
 				break;
 			}
+			if (isHorizontal && !checkBlock(overrideProtection ? null : p, b1.getRelative(BlockFace.DOWN), states, voidOK, true)) {
+				break;
+			}
+			b1 = b1.getRelative(direction);
 			if (++nTunnelled > max_dist) {
 				throw new HoleException(plugin.getMessage("too_deep"));
 			}
+		}
+		if (b.equals(b1)) {
+			// we didn't get to tunnel at all
+			throw new HoleException(plugin.getMessage("cant_create"));
+		}
 
-			b1 = b1.getRelative(direction);
-		} while (true);
-		b1 = b1.getRelative(direction.getOppositeFace());	// pull back one
+		b1 = b1.getRelative(direction.getOppositeFace());	// pull back one block
 
 		// b is our start block
 		// b1 is the last tunnellable block
 
 		Cuboid extent = new Cuboid(b.getLocation(), b1.getLocation());
-		if (isHorizontal) extent = extent.expand(CuboidDirection.Down, 1);
+		if (isHorizontal) {
+			extent = extent.expand(CuboidDirection.Down, 1);
+		}
+
+		blockBackup.clear();
+		for (BlockState bs : states) {
+			blockBackup.add(bs);
+		}
 
 		return extent;
 	}
 
-	private boolean isTerminator(Block b) {
-		return terminators.contains(b.getType());
+	private boolean checkBlock(Player player, Block b, List<BlockState> states, boolean voidOK, boolean lower) {
+		if (player != null) {
+			BlockBreakEvent breakEvent = new BlockBreakEvent(b, player);
+			Bukkit.getPluginManager().callEvent(breakEvent);
+			if (breakEvent.isCancelled()) {
+				LogUtils.finer("Break block " + b + " cancelled by other plugin");
+				return false;
+			}
+		}
+
+		if (b.getY() == 0 && !voidOK) {
+			LogUtils.finer("Block " + b + " opens into the void");
+			return false;
+		} else if (blackList.contains(b.getType())) {
+			LogUtils.finer("Block " + b + " is blacklisted");
+			return false;
+		} else if (!lower && !isSolid(b.getType())) {
+			LogUtils.finer("Block " + b + " is not solid");
+			return false;
+		}
+
+		BlockState bs = b.getState();
+		if (bs instanceof InventoryHolder) {
+			LogUtils.finer("Block " + b + " is an inventory holder");
+			return false;
+		}
+		LogUtils.finer("Block " + b + " is tunnellable");
+		states.add(bs);
+		return true;
 	}
 
-	private boolean isTunnellable(Block b) {
-		Material mat = b.getType();
-
-		LogUtils.finer("tunnellable " + b + ": blocked=" + !defaultBlockers.contains(mat) +
-		               ", terminated=" + terminators.contains(mat) +
-		               ", whitelist=" + whiteList.contains(mat) +
-		               ", blacklist=" + blackList.contains(mat));
-
-		if (blackList.contains(mat)) return false;
-		if (whiteList.contains(mat)) return true;
-
-		return !defaultBlockers.contains(mat); // || terminators.contains(mat);
+	private boolean isSolid(Material mat) {
+		if (mat.getId() == 171 || mat == Material.LADDER) {
+			// These materials are considered not solid by Bukkit
+			// But for tunnelling purpose, they are in fact pretty solid
+			return true;
+		} else {
+			return mat.isSolid();
+		}
 	}
 
 	public static Hole create(PortableHolePlugin plugin, PlayerInteractEvent event) {
@@ -290,64 +311,10 @@ public class Hole {
 	}
 
 	public static void initMaterials(PortableHolePlugin plugin) {
-		// these materials will always be tunnellable (careful what you add to this!)
-		whiteList.clear();
-		for (int id : plugin.getConfig().getIntegerList("tunnellable.whitelist")) {
-			whiteList.add(Material.getMaterial(id));
-		}
-
-		// these materials will terminate the tunnel creation successfully
-		// (the matched block will not be included in the tunnel)
-		terminators.clear();
-		terminators.add(Material.AIR);
-		terminators.add(Material.BEDROCK);
-		terminators.add(Material.POWERED_RAIL);
-		terminators.add(Material.DETECTOR_RAIL);
-		terminators.add(Material.TORCH);
-		terminators.add(Material.WATER);
-		terminators.add(Material.STATIONARY_WATER);
-		terminators.add(Material.SAPLING);
-		terminators.add(Material.WEB);
-		terminators.add(Material.LONG_GRASS);
-		terminators.add(Material.DEAD_BUSH);
-		terminators.add(Material.YELLOW_FLOWER);
-		terminators.add(Material.RED_ROSE);
-		terminators.add(Material.BROWN_MUSHROOM);
-		terminators.add(Material.RED_MUSHROOM);
-		terminators.add(Material.CROPS);
-		terminators.add(Material.SNOW);
-		terminators.add(Material.SUGAR_CANE);
-		terminators.add(Material.PUMPKIN_STEM);
-		terminators.add(Material.MELON_STEM);
-		terminators.add(Material.VINE);
-		terminators.add(Material.WATER_LILY);
-		terminators.add(Material.NETHER_WARTS);
-		terminators.add(Material.RAILS);
-		terminators.add(Material.LEVER);
-		terminators.add(Material.STONE_PLATE);
-		terminators.add(Material.WOOD_PLATE);
-		terminators.add(Material.REDSTONE_TORCH_OFF);
-		terminators.add(Material.REDSTONE_TORCH_ON);
-		terminators.add(Material.REDSTONE_WIRE);
-		terminators.add(Material.DIODE_BLOCK_OFF);
-		terminators.add(Material.DIODE_BLOCK_ON);
-		terminators.add(Material.TRIPWIRE);
-		terminators.add(Material.TRIPWIRE_HOOK);
-		terminators.add(Material.SIGN_POST);
-		terminators.add(Material.WALL_SIGN);
-		terminators.add(Material.STONE_BUTTON);
-		terminators.add(Material.FIRE);
-
-		// encountering any of these materials will cause tunnel creation to fail
 		blackList.clear();
 		for (int id : plugin.getConfig().getIntegerList("tunnellable.blacklist")) {
 			blackList.add(Material.getMaterial(id));
 		}
-
-		defaultBlockers.clear();
-		defaultBlockers.add(Material.LADDER);
-		defaultBlockers.add(Material.PORTAL);
-		defaultBlockers.add(Material.ENDER_PORTAL);
 	}
 
 	private class ParticleHandler implements Runnable {

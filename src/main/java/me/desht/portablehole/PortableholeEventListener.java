@@ -17,6 +17,9 @@ package me.desht.portablehole;
     along with PortableHole.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import java.util.HashMap;
+import java.util.Map;
+
 import me.desht.dhutils.DHUtilsException;
 import me.desht.dhutils.MiscUtil;
 
@@ -40,6 +43,9 @@ import org.bukkit.material.Attachable;
 
 public class PortableholeEventListener implements Listener {
 
+	private final Map<String,Long> lastInteract = new HashMap<String, Long>();
+	private static final int INTERACT_COOLDOWN = 250; // ms
+
 	private PortableHolePlugin plugin;
 
 	public PortableholeEventListener(PortableHolePlugin plugin) {
@@ -51,6 +57,18 @@ public class PortableholeEventListener implements Listener {
 		Player player = event.getPlayer();
 
 		if (event.getAction() == Action.LEFT_CLICK_BLOCK && holdingHoleBook(player)) {
+			event.setCancelled(true);
+
+			// Clicking non-solid blocks appears to send multiple interact events, including one for the
+			// block behind the clicked block.  We don't want that.
+			String playerName = player.getName();
+			long last = lastInteract.containsKey(playerName) ? lastInteract.get(playerName) : 0;
+			long now = System.currentTimeMillis();
+			if (now - last < INTERACT_COOLDOWN) {
+				return;
+			}
+			lastInteract.put(playerName, now);
+
 			try {
 				Hole.create(plugin, event);
 				event.setCancelled(true);
@@ -60,7 +78,7 @@ public class PortableholeEventListener implements Listener {
 			}
 		}
 	}
-	
+
 	/**
 	 * Prevent block breakage in creative mode when holding a hole book.
 	 * 
